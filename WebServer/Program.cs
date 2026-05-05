@@ -1,6 +1,18 @@
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
+app.Use(async (context, next) => {
+    Console.WriteLine($"[LOG]{context.Request.Method}{context.Request.Path}");
+    await next(context);
+    Console.WriteLine($"[LOG] ответ отправлен: {context.Response.StatusCode}");
+});
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Powered-By", "ASP.Net Core Lab27");
+    await next(context);
+});
+
 // app.MapGet("/", () => "Привет от Исп-235!,автор: Боровой Роман,Соколов Владимер");
 app.MapGet("/", () => "Добро пожаловать на сервер!");
 
@@ -31,5 +43,8 @@ app.MapGet("/product/{id}", (int id) => new Product(
     Price: id * 99.99m,
     InStock: id % 2 == 0
 ));
+
+
+
 app.Run();
 record Product(int Id, string Name, decimal Price, bool InStock);
